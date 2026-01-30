@@ -1,15 +1,6 @@
-version: '3.8'
-
 services:
-  db:
-    image: mysql:8.0
-    container_name: meu-banco-musical
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: senha_secreta  # A senha para conectar
-      MYSQL_DATABASE: spotifake         # Nome do banco que será criado
+  app-banco:
+    build: .  # Constrói o Dockerfile da pasta atual
+    container_name: projeto-sqlite-web
     ports:
-      - "3306:3306"                     # Porta externa : Porta interna
-    volumes:
-      # Isso joga seu script para dentro do container e roda ao iniciar
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - "8080:8080" # Libera a porta para o navegador
