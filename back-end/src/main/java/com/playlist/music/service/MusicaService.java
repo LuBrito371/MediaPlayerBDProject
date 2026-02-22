@@ -17,13 +17,8 @@ import lombok.RequiredArgsConstructor;
 public class MusicaService {
 
     private  final MusicaRepository repository;
+    private  final AlbumRepository albumRepository;
     
-    public MusicaService(MusicaRepository repository,
-            AlbumRepository albumRepository) {
-			this.repository = repository;
-			this.albumRepository = albumRepository;
-    }
-    private AlbumRepository albumRepository;
     
     public List<Musica> listar() {
         return repository.findAll();

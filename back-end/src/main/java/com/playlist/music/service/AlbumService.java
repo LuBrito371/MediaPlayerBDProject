@@ -17,11 +17,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AlbumService {
 
-    private AlbumRepository repository;
+    private final AlbumRepository repository;
   
-    public AlbumService(AlbumRepository repository) {
-        this.repository = repository;
-    }
     @Autowired
     private ArtistaRepository artistaRepository;
 

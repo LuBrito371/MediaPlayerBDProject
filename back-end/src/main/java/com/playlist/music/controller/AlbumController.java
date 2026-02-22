@@ -21,11 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AlbumController {
 
-    private AlbumService service;
-
-    public AlbumController(AlbumService service) {
-        this.service = service;
-    }
+    private final AlbumService service;
 
     @GetMapping
     public List<Album> listar() {

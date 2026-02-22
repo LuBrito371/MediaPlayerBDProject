@@ -10,8 +10,6 @@ import lombok.Setter;
 @Table(name = "artista")
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class Artista {
 
     @Id

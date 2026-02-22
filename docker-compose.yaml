@@ -1,6 +1,18 @@
 services:
   app-banco:
-    build: .  # Constrói o Dockerfile da pasta atual
-    container_name: projeto-sqlite-web
+    image: postgres:15-alpine
+    container_name: projeto-postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: adminpassword
+      POSTGRES_DB: musical
     ports:
-      - "8080:8080" # Libera a porta para o navegador
+      - "5432:5432" # Libera a porta para o seu DBeaver acessar
+    volumes:
+      # Roda o seu init.sql automaticamente na criação do banco
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      # Garante a persistência dos dados
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

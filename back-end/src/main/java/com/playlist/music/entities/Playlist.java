@@ -12,8 +12,6 @@ import lombok.Setter;
 @Table(name = "playlist")
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class Playlist {
 
     @Id
