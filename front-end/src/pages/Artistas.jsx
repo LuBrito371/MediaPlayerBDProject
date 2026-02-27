@@ -21,6 +21,7 @@ export default function Artistas() {
   }
 
   function excluir(id) {
+    console.log(id);
     api.delete(`/artistas/${id}`).then(listar);
   }
 
@@ -45,13 +46,15 @@ export default function Artistas() {
         </thead>
         <tbody>
           {artistas.map(a => (
-            <tr key={a.id}>
-              <td>{a.id}</td>
+            
+            <tr key={a.idArtista}>
+              <td>{a.idArtista}</td>
               <td>{a.nome}</td>
               <td>
-                <button onClick={() => excluir(a.id)}>Excluir</button>
+                <button onClick={() => excluir(a.idArtista)}>Excluir</button>
               </td>
             </tr>
+
           ))}
         </tbody>
       </table>
