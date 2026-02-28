@@ -20,8 +20,8 @@ export default function Usuarios() {
     });
   }
 
-  function excluir(id) {
-    api.delete(`/usuarios/${id}`).then(listar);
+  function excluir(idUsuario) {
+    api.delete(`/usuarios/${idUsuario}`).then(listar);
   }
 
   return (
@@ -45,11 +45,11 @@ export default function Usuarios() {
         </thead>
         <tbody>
           {usuarios.map(u => (
-            <tr key={u.id}>
-              <td>{u.id}</td>
+            <tr key={u.idUsuario}>
+              <td>{u.idUsuario}</td>
               <td>{u.nome}</td>
               <td>
-                <button onClick={() => excluir(u.id)}>Excluir</button>
+                <button onClick={() => excluir(u.idUsuario)}>Excluir</button>
               </td>
             </tr>
           ))}

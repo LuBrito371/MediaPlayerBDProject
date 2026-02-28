@@ -20,9 +20,9 @@ export default function Artistas() {
     });
   }
 
-  function excluir(id) {
-    console.log(id);
-    api.delete(`/artistas/${id}`).then(listar);
+  function excluir(idArtista) {
+    console.log(idArtista);
+    api.delete(`/artistas/${idArtista}`).then(listar);
   }
 
   return (
