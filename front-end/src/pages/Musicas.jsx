@@ -4,7 +4,7 @@ import api from "../services/api";
 export default function Musicas() {
   const [musicas, setMusicas] = useState([]);
   const [titulo, setTitulo] = useState("");
-  const [albumId, setAlbumId] = useState("");
+  const [idAlbum, setIdAlbum] = useState("");
 
   useEffect(() => {
     listar();
@@ -17,16 +17,16 @@ export default function Musicas() {
   function salvar() {
     api.post("/musicas", {
       titulo,
-      album: { id: albumId }
+      album: { id: idAlbum }
     }).then(() => {
       setTitulo("");
-      setAlbumId("");
+      setIdAlbum("");
       listar();
     });
   }
 
-  function excluir(id) {
-    api.delete(`/musicas/${id}`).then(listar);
+  function excluir(idMusica) {
+    api.delete(`/musicas/${idMusica}`).then(listar);
   }
 
   return (
@@ -41,8 +41,8 @@ export default function Musicas() {
 
       <input
         placeholder="ID do álbum"
-        value={albumId}
-        onChange={e => setAlbumId(e.target.value)}
+        value={idAlbum}
+        onChange={e => setIdAlbum(e.target.value)}
       />
 
       <button onClick={salvar}>Salvar</button>
@@ -57,11 +57,11 @@ export default function Musicas() {
         </thead>
         <tbody>
           {musicas.map(m => (
-            <tr key={m.id}>
-              <td>{m.id}</td>
+            <tr key={m.idMusica}>
+              <td>{m.idMusica}</td>
               <td>{m.titulo}</td>
               <td>
-                <button onClick={() => excluir(m.id)}>Excluir</button>
+                <button onClick={() => excluir(m.idMusica)}>Excluir</button>
               </td>
             </tr>
           ))}
