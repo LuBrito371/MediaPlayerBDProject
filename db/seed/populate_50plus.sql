@@ -11,10 +11,24 @@ BEGIN;
 INSERT INTO ARTISTA (id_artista, nome)
 SELECT id_artista, nome
 FROM (
-    SELECT gs AS id_artista, 'Artista Gerado ' || gs AS nome
+    SELECT
+        gs AS id_artista,
+        (ARRAY[
+            'Adele','Billie Eilish','Dua Lipa','Olivia Rodrigo','Harry Styles',
+            'The Weeknd','Bruno Mars','Arctic Monkeys','Foo Fighters','Radiohead',
+            'Metallica','Nirvana','Pearl Jam','U2','Oasis',
+            'Imagine Dragons','Maroon 5','OneRepublic','Linkin Park','Coldplay',
+            'Sam Smith','Sia','Lana Del Rey','Shawn Mendes','Ed Sheeran',
+            'Beyoncé','Rihanna','Katy Perry','Lady Gaga','Miley Cyrus',
+            'Post Malone','Travis Scott','Drake','Kendrick Lamar','J. Cole',
+            'Anitta','Ludmilla','Iza','Pabllo Vittar','Jão',
+            'Gilberto Gil','Caetano Veloso','Marisa Monte','Seu Jorge','Djavan',
+            'Gal Costa','Rita Lee','Skank','Capital Inicial','Legião Urbana'
+        ])[1 + ((gs - 11) % 50)] AS nome
     FROM generate_series(11, 60) AS gs
 ) AS dados
-ON CONFLICT (id_artista) DO NOTHING;
+ON CONFLICT (id_artista) DO UPDATE
+SET nome = EXCLUDED.nome;
 
 -- Álbuns: distribui entre os artistas e alterna gêneros
 INSERT INTO ALBUM (id_album, titulo, ano_lancamento, genero, id_artista)
@@ -22,7 +36,18 @@ SELECT id_album, titulo, ano_lancamento, genero, id_artista
 FROM (
     SELECT
         gs AS id_album,
-        'Album Gerado ' || gs AS titulo,
+        (ARRAY[
+            '21','When We All Fall Asleep, Where Do We Go?','Future Nostalgia','SOUR','Fine Line',
+            'After Hours','Doo-Wops & Hooligans','AM','Wasting Light','OK Computer',
+            'Master of Puppets','Nevermind','Ten','The Joshua Tree','(What''s the Story) Morning Glory?',
+            'Night Visions','Songs About Jane','Native','Hybrid Theory','A Rush of Blood to the Head',
+            'In the Lonely Hour','1000 Forms of Fear','Born to Die','Illuminate','Divide',
+            'Lemonade','ANTI','Teenage Dream','The Fame','Plastic Hearts',
+            'Hollywood''s Bleeding','Astroworld','Scorpion','DAMN.','2014 Forest Hills Drive',
+            'Versions of Me','Numanice','Dona de Mim','Não Para Não','Lobos',
+            'Refavela','Transa','Memórias, Crônicas e Declarações de Amor','Músicas para Churrasco, Vol. 1','Luz',
+            'India','Fruto Proibido','Calango','Acústico MTV','Dois'
+        ])[1 + ((gs - 21) % 50)] || ' (' || gs || ')' AS titulo,
         1980 + (gs % 44) AS ano_lancamento,
         CASE
             WHEN gs % 4 = 0 THEN 'Rock'
@@ -33,7 +58,11 @@ FROM (
         ((gs - 1) % 60) + 1 AS id_artista
     FROM generate_series(21, 80) AS gs
 ) AS dados
-ON CONFLICT (id_album) DO NOTHING;
+ON CONFLICT (id_album) DO UPDATE
+SET titulo = EXCLUDED.titulo,
+    ano_lancamento = EXCLUDED.ano_lancamento,
+    genero = EXCLUDED.genero,
+    id_artista = EXCLUDED.id_artista;
 
 -- Músicas: liga cada faixa a um álbum válido
 INSERT INTO MUSICA (id_musica, titulo, duracao, url_musica, id_album)
@@ -41,13 +70,30 @@ SELECT id_musica, titulo, duracao, url_musica, id_album
 FROM (
     SELECT
         gs AS id_musica,
-        'Musica Gerada ' || gs AS titulo,
+        (ARRAY[
+            'Rolling in the Deep','Bad Guy','Levitating','drivers license','Watermelon Sugar',
+            'Blinding Lights','Just the Way You Are','Do I Wanna Know?','These Days','Karma Police',
+            'Battery','Smells Like Teen Spirit','Alive','With or Without You','Wonderwall',
+            'Demons','This Love','Counting Stars','In the End','The Scientist',
+            'Stay With Me','Chandelier','Summertime Sadness','Stitches','Shape of You',
+            'Formation','Diamonds','Firework','Poker Face','Midnight Sky',
+            'Circles','Sicko Mode','God''s Plan','HUMBLE.','No Role Modelz',
+            'Envolver','Cheguei','Pesadão','Disk Me','Idiota',
+            'Palco','Sozinho','Ainda Bem','Amiga da Minha Mulher','Flor de Lis',
+            'Baby','Ovelha Negra','Garota Nacional','Primeiros Erros','Tempo Perdido',
+            'Viva La Vida','Yellow','Photograph','Thinking Out Loud','Shallow',
+            'Believer','Radioactive','Numb','Fix You','Happier'
+        ])[1 + ((gs - 31) % 60)] || ' #' || gs AS titulo,
         150 + (gs % 240) AS duracao,
-        'http://musica/gerada_' || gs AS url_musica,
+        'https://media.local/tracks/faixa_' || gs || '.mp3' AS url_musica,
         ((gs - 1) % 80) + 1 AS id_album
     FROM generate_series(31, 120) AS gs
 ) AS dados
-ON CONFLICT (id_musica) DO NOTHING;
+ON CONFLICT (id_musica) DO UPDATE
+SET titulo = EXCLUDED.titulo,
+    duracao = EXCLUDED.duracao,
+    url_musica = EXCLUDED.url_musica,
+    id_album = EXCLUDED.id_album;
 
 -- Usuários: cria massa de teste com email único
 INSERT INTO USUARIO (id_usuario, nome, email, senha)
