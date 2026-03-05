@@ -4,7 +4,7 @@ import api from "../services/api";
 export default function Albuns() {
   const [albuns, setAlbuns] = useState([]);
   const [titulo, setTitulo] = useState("");
-  const [artistaId, setArtistaId] = useState("");
+  const [idArtista, setIdArtista] = useState("");
 
   useEffect(() => {
     listar();
@@ -17,16 +17,16 @@ export default function Albuns() {
   function salvar() {
     api.post("/albuns", {
       titulo,
-      artista: { id: artistaId }
+      artista: { id: idArtista }
     }).then(() => {
       setTitulo("");
-      setArtistaId("");
+      setIdArtista("");
       listar();
     });
   }
 
-  function excluir(id) {
-    api.delete(`/albuns/${id}`).then(listar);
+  function excluir(idAlbum) {
+    api.delete(`/albuns/${idAlbum}`).then(listar);
   }
 
   return (
@@ -41,7 +41,7 @@ export default function Albuns() {
 
       <input
         placeholder="ID do artista"
-        value={artistaId}
+        value={idArtista}
         onChange={e => setArtistaId(e.target.value)}
       />
 
@@ -57,11 +57,11 @@ export default function Albuns() {
         </thead>
         <tbody>
           {albuns.map(a => (
-            <tr key={a.id}>
-              <td>{a.id}</td>
+            <tr key={a.idAlbum}>
+              <td>{a.idAlbum}</td>
               <td>{a.titulo}</td>
               <td>
-                <button onClick={() => excluir(a.id)}>Excluir</button>
+                <button onClick={() => excluir(a.idAlbum)}>Excluir</button>
               </td>
             </tr>
           ))}

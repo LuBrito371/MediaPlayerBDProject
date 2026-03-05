@@ -4,7 +4,7 @@ import api from "../services/api";
 export default function Playlists() {
   const [playlists, setPlaylists] = useState([]);
   const [nome, setNome] = useState("");
-  const [usuarioId, setUsuarioId] = useState("");
+  const [idUsuario, setIdUsuario] = useState("");
 
   useEffect(() => {
     listar();
@@ -17,16 +17,16 @@ export default function Playlists() {
   function salvar() {
     api.post("/playlists", {
       nome,
-      usuario: { id: usuarioId }
+      usuario: { id: idUsuario }
     }).then(() => {
       setNome("");
-      setUsuarioId("");
+      setIdUsuario("");
       listar();
     });
   }
 
-  function excluir(id) {
-    api.delete(`/playlists/${id}`).then(listar);
+  function excluir(idPlaylist) {
+    api.delete(`/playlists/${idPlaylist}`).then(listar);
   }
 
   return (
@@ -41,8 +41,8 @@ export default function Playlists() {
 
       <input
         placeholder="ID do usuário"
-        value={usuarioId}
-        onChange={e => setUsuarioId(e.target.value)}
+        value={idUsuario}
+        onChange={e => setIdUsuario(e.target.value)}
       />
 
       <button onClick={salvar}>Salvar</button>
@@ -57,11 +57,11 @@ export default function Playlists() {
         </thead>
         <tbody>
           {playlists.map(p => (
-            <tr key={p.id}>
-              <td>{p.id}</td>
-              <td>{p.nome}</td>
+            <tr key={p.idPlaylist}>
+              <td>{p.idPlaylist}</td>
+              <td>{p.nomePlaylist}</td>
               <td>
-                <button onClick={() => excluir(p.id)}>Excluir</button>
+                <button onClick={() => excluir(p.idPlaylist)}>Excluir</button>
               </td>
             </tr>
           ))}
