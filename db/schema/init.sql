@@ -35,7 +35,7 @@ CREATE TABLE ALBUM (
     ano_lancamento INTEGER NOT NULL,
     genero VARCHAR(50) NOT NULL,
     id_artista INTEGER NOT NULL,
-    FOREIGN KEY (id_artista) REFERENCES ARTISTA(id_artista)
+    FOREIGN KEY (id_artista) REFERENCES ARTISTA(id_artista) ON DELETE CASCADE
 );
 
 CREATE TABLE MUSICA (
@@ -44,7 +44,7 @@ CREATE TABLE MUSICA (
     duracao INTEGER NOT NULL,
     url_musica VARCHAR(255) NOT NULL,
     id_album INTEGER NOT NULL,
-    FOREIGN KEY (id_album) REFERENCES ALBUM(id_album)
+    FOREIGN KEY (id_album) REFERENCES ALBUM(id_album) ON DELETE CASCADE
 );
 
 CREATE TABLE USUARIO (
@@ -59,25 +59,25 @@ CREATE TABLE PLAYLIST (
     nome_playlist VARCHAR(100) NOT NULL,
     data_criacao DATE DEFAULT CURRENT_DATE,
     id_usuario INTEGER NOT NULL,
-    FOREIGN KEY (id_usuario) REFERENCES USUARIO(id_usuario)
+    FOREIGN KEY (id_usuario) REFERENCES USUARIO(id_usuario) ON DELETE CASCADE
 );
 
 CREATE TABLE PLAYLIST_MUSICA (
-    id_playlist SERIAL NOT NULL,
+    id_playlist INTEGER NOT NULL,
     id_musica INTEGER NOT NULL,
     data_adicao DATE NOT NULL,
     PRIMARY KEY (id_playlist, id_musica),
-    FOREIGN KEY (id_playlist) REFERENCES PLAYLIST(id_playlist),
-    FOREIGN KEY (id_musica) REFERENCES MUSICA(id_musica)
+    FOREIGN KEY (id_playlist) REFERENCES PLAYLIST(id_playlist) ON DELETE CASCADE,
+    FOREIGN KEY (id_musica) REFERENCES MUSICA(id_musica) ON DELETE CASCADE
 );
 
 CREATE TABLE HISTORICO_REPRODUCAO (
-    id_usuario SERIAL NOT NULL,
+    id_usuario INTEGER NOT NULL,
     id_musica INTEGER NOT NULL,
     data_hora_reproducao TIMESTAMP NOT NULL,
     PRIMARY KEY (id_usuario, id_musica, data_hora_reproducao),
-    FOREIGN KEY (id_usuario) REFERENCES USUARIO(id_usuario),
-    FOREIGN KEY (id_musica) REFERENCES MUSICA(id_musica)
+    FOREIGN KEY (id_usuario) REFERENCES USUARIO(id_usuario) ON DELETE CASCADE,
+    FOREIGN KEY (id_musica) REFERENCES MUSICA(id_musica) ON DELETE CASCADE
 );
 
 -- ====================================

@@ -28,6 +28,9 @@ public class AlbumService {
 
     public Album salvar(Album album) {
 
+        if (album.getArtista() == null || album.getArtista().getIdArtista() == null) {
+            throw new RuntimeException("Artista é obrigatório");
+        }
         Integer artistaId = album.getArtista().getIdArtista();
 
         Artista artista = artistaRepository.findById(artistaId)

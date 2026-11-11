@@ -5,15 +5,16 @@ export default function Artistas() {
   const [artistas, setArtistas] = useState([]);
   const [nome, setNome] = useState("");
 
-  useEffect(() => {
-    listar();
-  }, []);
-
   function listar() {
     api.get("/artistas").then(res => setArtistas(res.data));
   }
 
+  useEffect(() => {
+    listar();
+  }, []);
+
   function salvar() {
+    if (!nome) return;
     api.post("/artistas", { nome }).then(() => {
       setNome("");
       listar();
@@ -21,7 +22,6 @@ export default function Artistas() {
   }
 
   function excluir(idArtista) {
-    console.log(idArtista);
     api.delete(`/artistas/${idArtista}`).then(listar);
   }
 
@@ -46,7 +46,6 @@ export default function Artistas() {
         </thead>
         <tbody>
           {artistas.map(a => (
-            
             <tr key={a.idArtista}>
               <td>{a.idArtista}</td>
               <td>{a.nome}</td>
@@ -54,7 +53,6 @@ export default function Artistas() {
                 <button onClick={() => excluir(a.idArtista)}>Excluir</button>
               </td>
             </tr>
-
           ))}
         </tbody>
       </table>

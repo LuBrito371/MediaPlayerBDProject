@@ -4,22 +4,29 @@ import api from "../services/api";
 export default function Albuns() {
   const [albuns, setAlbuns] = useState([]);
   const [titulo, setTitulo] = useState("");
+  const [anoLancamento, setAnoLancamento] = useState("");
+  const [genero, setGenero] = useState("");
   const [idArtista, setIdArtista] = useState("");
-
-  useEffect(() => {
-    listar();
-  }, []);
 
   function listar() {
     api.get("/albuns").then(res => setAlbuns(res.data));
   }
 
+  useEffect(() => {
+    listar();
+  }, []);
+
   function salvar() {
+    if (!titulo || !anoLancamento || !genero || !idArtista) return;
     api.post("/albuns", {
       titulo,
-      artista: { id: idArtista }
+      anoLancamento: Number(anoLancamento),
+      genero,
+      artista: { idArtista: Number(idArtista) }
     }).then(() => {
       setTitulo("");
+      setAnoLancamento("");
+      setGenero("");
       setIdArtista("");
       listar();
     });
@@ -40,9 +47,23 @@ export default function Albuns() {
       />
 
       <input
+        placeholder="Ano de lançamento"
+        type="number"
+        value={anoLancamento}
+        onChange={e => setAnoLancamento(e.target.value)}
+      />
+
+      <input
+        placeholder="Gênero"
+        value={genero}
+        onChange={e => setGenero(e.target.value)}
+      />
+
+      <input
         placeholder="ID do artista"
+        type="number"
         value={idArtista}
-        onChange={e => setArtistaId(e.target.value)}
+        onChange={e => setIdArtista(e.target.value)}
       />
 
       <button onClick={salvar}>Salvar</button>
@@ -52,6 +73,9 @@ export default function Albuns() {
           <tr>
             <th>ID</th>
             <th>Título</th>
+            <th>Ano</th>
+            <th>Gênero</th>
+            <th>Artista</th>
             <th>Ações</th>
           </tr>
         </thead>
@@ -60,6 +84,9 @@ export default function Albuns() {
             <tr key={a.idAlbum}>
               <td>{a.idAlbum}</td>
               <td>{a.titulo}</td>
+              <td>{a.anoLancamento}</td>
+              <td>{a.genero}</td>
+              <td>{a.artista?.nome}</td>
               <td>
                 <button onClick={() => excluir(a.idAlbum)}>Excluir</button>
               </td>

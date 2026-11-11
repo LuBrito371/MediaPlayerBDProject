@@ -1,5 +1,6 @@
 package com.playlist.music.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -38,6 +39,9 @@ public class PlaylistService {
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         playlist.setUsuario(usuario);
+        if (playlist.getDataCriacao() == null) {
+            playlist.setDataCriacao(LocalDate.now());
+        }
 
         return repository.save(playlist);
     }

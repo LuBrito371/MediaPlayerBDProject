@@ -7,26 +7,33 @@ services:
       POSTGRES_PASSWORD: adminpassword
       POSTGRES_DB: musical
     ports:
-      - "5432:5432" 
+      - "5432:5432"
     volumes:
-      - ./db/schema/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db/schema/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./db/views/views_relatorios.sql:/docker-entrypoint-initdb.d/02-views.sql
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d musical"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   backend:
-    build: ./back-end  
+    build: ./back-end
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/musical
       - SPRING_DATASOURCE_USERNAME=admin
       - SPRING_DATASOURCE_PASSWORD=adminpassword
 
   frontend:
-    build: ./front-end 
+    build: ./front-end
     ports:
-      - "5173:80"      
+      - "5173:80"
     depends_on:
       - backend
 

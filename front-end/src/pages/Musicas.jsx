@@ -4,22 +4,29 @@ import api from "../services/api";
 export default function Musicas() {
   const [musicas, setMusicas] = useState([]);
   const [titulo, setTitulo] = useState("");
+  const [duracao, setDuracao] = useState("");
+  const [urlMusica, setUrlMusica] = useState("");
   const [idAlbum, setIdAlbum] = useState("");
-
-  useEffect(() => {
-    listar();
-  }, []);
 
   function listar() {
     api.get("/musicas").then(res => setMusicas(res.data));
   }
 
+  useEffect(() => {
+    listar();
+  }, []);
+
   function salvar() {
+    if (!titulo || !duracao || !urlMusica || !idAlbum) return;
     api.post("/musicas", {
       titulo,
-      album: { id: idAlbum }
+      duracao: Number(duracao),
+      urlMusica,
+      album: { idAlbum: Number(idAlbum) }
     }).then(() => {
       setTitulo("");
+      setDuracao("");
+      setUrlMusica("");
       setIdAlbum("");
       listar();
     });
@@ -40,7 +47,21 @@ export default function Musicas() {
       />
 
       <input
+        placeholder="Duração (segundos)"
+        type="number"
+        value={duracao}
+        onChange={e => setDuracao(e.target.value)}
+      />
+
+      <input
+        placeholder="URL da música"
+        value={urlMusica}
+        onChange={e => setUrlMusica(e.target.value)}
+      />
+
+      <input
         placeholder="ID do álbum"
+        type="number"
         value={idAlbum}
         onChange={e => setIdAlbum(e.target.value)}
       />
@@ -52,6 +73,8 @@ export default function Musicas() {
           <tr>
             <th>ID</th>
             <th>Título</th>
+            <th>Duração (s)</th>
+            <th>Álbum</th>
             <th>Ações</th>
           </tr>
         </thead>
@@ -60,6 +83,8 @@ export default function Musicas() {
             <tr key={m.idMusica}>
               <td>{m.idMusica}</td>
               <td>{m.titulo}</td>
+              <td>{m.duracao}</td>
+              <td>{m.album?.titulo}</td>
               <td>
                 <button onClick={() => excluir(m.idMusica)}>Excluir</button>
               </td>

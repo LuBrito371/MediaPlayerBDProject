@@ -26,6 +26,9 @@ public class MusicaService {
 
     public Musica salvar(Musica musica) {
 
+        if (musica.getAlbum() == null || musica.getAlbum().getIdAlbum() == null) {
+            throw new RuntimeException("Álbum é obrigatório");
+        }
         Integer albumId = musica.getAlbum().getIdAlbum();
 
         Album album = albumRepository.findById(albumId)

@@ -114,7 +114,7 @@ JOIN MUSICA m ON h.id_musica = m.id_musica
 JOIN ALBUM al ON m.id_album = al.id_album
 JOIN ARTISTA ar ON al.id_artista = ar.id_artista
 WHERE h.id_usuario = 1
-  AND h.data_hora_reproducao >= datetime('now', '-30 days')
+  AND h.data_hora_reproducao >= CURRENT_TIMESTAMP - INTERVAL '30 days'
 ORDER BY h.data_hora_reproducao DESC;
 
 -- Músicas adicionadas recentemente às playlists
@@ -130,7 +130,7 @@ JOIN USUARIO u ON p.id_usuario = u.id_usuario
 JOIN MUSICA m ON pm.id_musica = m.id_musica
 JOIN ALBUM al ON m.id_album = al.id_album
 JOIN ARTISTA ar ON al.id_artista = ar.id_artista
-WHERE pm.data_adicao >= date('now', '-7 days')
+WHERE pm.data_adicao >= CURRENT_DATE - INTERVAL '7 days'
 ORDER BY pm.data_adicao DESC;
 
 -- ====================================
@@ -200,7 +200,7 @@ FROM (
     FROM PLAYLIST p
     LEFT JOIN PLAYLIST_MUSICA pm ON p.id_playlist = pm.id_playlist
     GROUP BY p.id_playlist
-);
+) AS sub;
 
 -- Distribuição de álbuns por gênero
 SELECT 
@@ -224,7 +224,7 @@ SELECT
     u.nome AS usuario,
     COUNT(*) AS total_reproducoes,
     COUNT(DISTINCT h.id_musica) AS musicas_unicas,
-    ROUND(CAST(COUNT(*) AS REAL) / COUNT(DISTINCT h.id_musica), 2) AS taxa_repeticao
+    ROUND(CAST(COUNT(*) AS NUMERIC) / COUNT(DISTINCT h.id_musica), 2) AS taxa_repeticao
 FROM USUARIO u
 JOIN HISTORICO_REPRODUCAO h ON u.id_usuario = h.id_usuario
 GROUP BY u.id_usuario, u.nome
@@ -333,7 +333,7 @@ WHERE id_playlist = 5 AND id_usuario = 4;
 
 -- DELETE: Remover histórico de reprodução antigo (mais de 1 ano)
 DELETE FROM HISTORICO_REPRODUCAO
-WHERE data_hora_reproducao < datetime('now', '-1 year');
+WHERE data_hora_reproducao < CURRENT_TIMESTAMP - INTERVAL '1 year';
 
 -- DELETE: Limpar histórico de um usuário específico
 DELETE FROM HISTORICO_REPRODUCAO
@@ -344,7 +344,7 @@ WHERE id_usuario = 2;
 -- ====================================
 
 -- View: Catálogo completo de músicas
-CREATE VIEW IF NOT EXISTS vw_catalogo_musicas AS
+CREATE OR REPLACE VIEW vw_catalogo_musicas AS
 SELECT 
     m.id_musica,
     m.titulo AS musica,
@@ -358,7 +358,7 @@ JOIN ALBUM al ON m.id_album = al.id_album
 JOIN ARTISTA ar ON al.id_artista = ar.id_artista;
 
 -- View: Estatísticas de usuários
-CREATE VIEW IF NOT EXISTS vw_estatisticas_usuarios AS
+CREATE OR REPLACE VIEW vw_estatisticas_usuarios AS
 SELECT 
     u.id_usuario,
     u.nome,

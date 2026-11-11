@@ -95,6 +95,12 @@ FROM USUARIO u
 CROSS JOIN generate_series(1, 5) AS rep
 ON CONFLICT (id_usuario, id_musica, data_hora_reproducao) DO NOTHING;
 
+SELECT setval('album_id_album_seq', (SELECT MAX(id_album) FROM ALBUM));
+SELECT setval('artista_id_artista_seq', (SELECT MAX(id_artista) FROM ARTISTA));
+SELECT setval('musica_id_musica_seq', (SELECT MAX(id_musica) FROM MUSICA));
+SELECT setval('usuario_id_usuario_seq', (SELECT MAX(id_usuario) FROM USUARIO));
+SELECT setval('playlist_id_playlist_seq', (SELECT MAX(id_playlist) FROM PLAYLIST));
+
 COMMIT;
 
 -- Conferência rápida de volume após o povoamento

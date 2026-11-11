@@ -6,18 +6,19 @@ export default function Playlists() {
   const [nome, setNome] = useState("");
   const [idUsuario, setIdUsuario] = useState("");
 
-  useEffect(() => {
-    listar();
-  }, []);
-
   function listar() {
     api.get("/playlists").then(res => setPlaylists(res.data));
   }
 
+  useEffect(() => {
+    listar();
+  }, []);
+
   function salvar() {
+    if (!nome || !idUsuario) return;
     api.post("/playlists", {
-      nome,
-      usuario: { id: idUsuario }
+      nomePlaylist: nome,
+      usuario: { idUsuario: Number(idUsuario) }
     }).then(() => {
       setNome("");
       setIdUsuario("");
@@ -41,6 +42,7 @@ export default function Playlists() {
 
       <input
         placeholder="ID do usuário"
+        type="number"
         value={idUsuario}
         onChange={e => setIdUsuario(e.target.value)}
       />
@@ -52,6 +54,8 @@ export default function Playlists() {
           <tr>
             <th>ID</th>
             <th>Nome</th>
+            <th>Usuário</th>
+            <th>Data de Criação</th>
             <th>Ações</th>
           </tr>
         </thead>
@@ -60,6 +64,8 @@ export default function Playlists() {
             <tr key={p.idPlaylist}>
               <td>{p.idPlaylist}</td>
               <td>{p.nomePlaylist}</td>
+              <td>{p.usuario?.nome}</td>
+              <td>{p.dataCriacao}</td>
               <td>
                 <button onClick={() => excluir(p.idPlaylist)}>Excluir</button>
               </td>
