@@ -12,12 +12,12 @@ export default function App() {
     <BrowserRouter>
       <Layout>
         <Routes>
-          <Route path="/" element={<Usuarios />} />
-          <Route path="/usuarios" element={<Usuarios />} />
-          <Route path="/artistas" element={<Artistas />} />
-          <Route path="/albuns" element={<Albuns />} />
+          <Route path="/" element={<Musicas />} />
           <Route path="/musicas" element={<Musicas />} />
           <Route path="/playlists" element={<Playlists />} />
+          <Route path="/albuns" element={<Albuns />} />
+          <Route path="/artistas" element={<Artistas />} />
+          <Route path="/usuarios" element={<Usuarios />} />
           <Route path="/relatorios" element={<Relatorios />} />
         </Routes>
       </Layout>
