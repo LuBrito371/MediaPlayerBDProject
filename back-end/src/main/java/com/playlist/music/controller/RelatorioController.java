@@ -9,15 +9,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.playlist.music.service.RelatorioService;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping("/relatorios")
+@RequiredArgsConstructor
 public class RelatorioController {
 
     private final RelatorioService service;
-
-    public RelatorioController(RelatorioService service) {
-        this.service = service;
-    }
 
     @GetMapping("/usuarios-dia")
     public List<Map<String, Object>> usuariosDia() {
@@ -32,5 +31,10 @@ public class RelatorioController {
     @GetMapping("/ranking-artistas")
     public List<Map<String, Object>> rankingArtistas() {
         return service.relatorioRankingArtistas();
+    }
+
+    @GetMapping("/auditoria-usuarios")
+    public List<Map<String, Object>> auditoriaUsuarios() {
+        return service.relatorioAuditoriaUsuarios();
     }
 }

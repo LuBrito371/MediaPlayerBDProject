@@ -2,48 +2,26 @@ package com.playlist.music.entities;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Objects;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Embeddable
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode
 public class HistoricoReproducaoId implements Serializable {
 
     private Integer idUsuario;
     private Integer idMusica;
+
+    @Column(name = "data_hora_reproducao", nullable = false)
     private LocalDateTime dataHoraReproducao;
-
-    public HistoricoReproducaoId() {}
-
-    public HistoricoReproducaoId(Integer idUsuario, Integer idMusica,
-                                 LocalDateTime dataHoraReproducao) {
-        this.idUsuario = idUsuario;
-        this.idMusica = idMusica;
-        this.dataHoraReproducao = dataHoraReproducao;
-    }
-
-	public Integer getIdUsuario() {
-		return idUsuario;
-	}
-
-	public void setIdUsuario(Integer idUsuario) {
-		this.idUsuario = idUsuario;
-	}
-
-	public Integer getIdMusica() {
-		return idMusica;
-	}
-
-	public void setIdMusica(Integer idMusica) {
-		this.idMusica = idMusica;
-	}
-
-	public LocalDateTime getDataHoraReproducao() {
-		return dataHoraReproducao;
-	}
-
-	public void setDataHoraReproducao(LocalDateTime dataHoraReproducao) {
-		this.dataHoraReproducao = dataHoraReproducao;
-	}
-
-    
 }

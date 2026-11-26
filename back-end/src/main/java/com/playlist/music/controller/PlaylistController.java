@@ -1,20 +1,29 @@
 package com.playlist.music.controller;
 
-import lombok.RequiredArgsConstructor;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.playlist.music.entities.Playlist;
 import com.playlist.music.service.PlaylistService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/playlists")
 @RequiredArgsConstructor
 public class PlaylistController {
 
-    @Autowired
-    private PlaylistService service;
+    private final PlaylistService service;
 
     @GetMapping
     public List<Playlist> listar() {
@@ -27,30 +36,18 @@ public class PlaylistController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Playlist salvar(@RequestBody Playlist playlist) {
         return service.salvar(playlist);
     }
+
     @PutMapping("/{id}")
-    public Playlist atualizar(@PathVariable Integer id,
-                             @RequestBody Playlist playlist) {
-
-    	Playlist existente = service.buscarPorId(id);
-
-        if (playlist.getNomePlaylist() != null) {
-            existente.setNomePlaylist(playlist.getNomePlaylist());
-        }
-        if (playlist.getDataCriacao() != null) {
-            existente.setDataCriacao(playlist.getDataCriacao());
-        }
-        if (playlist.getUsuario() != null) {
-            existente.setUsuario(playlist.getUsuario());
-        }
-
-        return service.salvar(existente);
+    public Playlist atualizar(@PathVariable Integer id, @RequestBody Playlist playlist) {
+        return service.atualizar(id, playlist);
     }
-    
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletar(@PathVariable Integer id) {
         service.deletar(id);
     }

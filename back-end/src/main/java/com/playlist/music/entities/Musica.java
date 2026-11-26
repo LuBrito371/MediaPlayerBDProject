@@ -1,6 +1,13 @@
 package com.playlist.music.entities;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,71 +17,25 @@ import lombok.Setter;
 @Table(name = "musica")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Musica {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_musica")
     private Integer idMusica;
 
+    @Column(nullable = false, length = 100)
     private String titulo;
+
+    @Column(nullable = false)
     private Integer duracao;
+
+    @Column(name = "url_musica", nullable = false, length = 255)
     private String urlMusica;
 
-    @ManyToOne
-    @JoinColumn(name = "id_album")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "id_album", nullable = false)
     private Album album;
-    
-    public Musica () {}
-
-	public Musica(Integer idMusica, String titulo, Integer duracao, String urlMusica, Album album) {
-		this.idMusica = idMusica;
-		this.titulo = titulo;
-		this.duracao = duracao;
-		this.urlMusica = urlMusica;
-		this.album = album;
-	}
-
-	public Integer getIdMusica() {
-		return idMusica;
-	}
-
-	public void setIdMusica(Integer idMusica) {
-		this.idMusica = idMusica;
-	}
-
-	public String getTitulo() {
-		return titulo;
-	}
-
-	public void setTitulo(String titulo) {
-		this.titulo = titulo;
-	}
-
-	public Integer getDuracao() {
-		return duracao;
-	}
-
-	public void setDuracao(Integer duracao) {
-		this.duracao = duracao;
-	}
-
-	public String getUrlMusica() {
-		return urlMusica;
-	}
-
-	public void setUrlMusica(String urlMusica) {
-		this.urlMusica = urlMusica;
-	}
-
-	public Album getAlbum() {
-		return album;
-	}
-
-	public void setAlbum(Album album) {
-		this.album = album;
-	}
-	
-	
-    
-    
 }

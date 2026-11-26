@@ -1,112 +1,195 @@
 import { useEffect, useState } from "react";
-import api from "../services/api";
+import api, { getErrorMessage } from "../services/api";
 
 export default function Albuns() {
   const [albuns, setAlbuns] = useState([]);
+  const [artistas, setArtistas] = useState([]);
+  const [editId, setEditId] = useState(null);
   const [titulo, setTitulo] = useState("");
   const [anoLancamento, setAnoLancamento] = useState("");
   const [genero, setGenero] = useState("");
-  const [artistaId, setArtistaId] = useState("");
-  const [idEdicao, setIdEdicao] = useState(null);
+  const [idArtista, setIdArtista] = useState("");
+  const [erro, setErro] = useState("");
 
-  useEffect(() => {
-    listar();
-  }, []);
-
-  function listar() {
-    api.get("/albuns").then(res => setAlbuns(res.data));
+  function carregarDados() {
+    api.get("/albuns").then(res => setAlbuns(res.data)).catch(() => {});
+    api.get("/artistas").then(res => setArtistas(res.data)).catch(() => {});
   }
 
-  function salvar() {
+  useEffect(() => {
+    carregarDados();
+  }, []);
+
+  function limparFormulario() {
+    setEditId(null);
+    setTitulo("");
+    setAnoLancamento("");
+    setGenero("");
+    setIdArtista("");
+    setErro("");
+  }
+
+  function salvar(e) {
+    e.preventDefault();
+    setErro("");
+    if (!titulo || !anoLancamento || !genero || !idArtista) {
+      setErro("Preencha todos os campos do álbum.");
+      return;
+    }
+
     const payload = {
       titulo,
       anoLancamento: Number(anoLancamento),
       genero,
-      artista: { idArtista: Number(artistaId) }
+      artista: { idArtista: Number(idArtista) }
     };
 
-    const requisicao = idEdicao
-      ? api.put(`/albuns/${idEdicao}`, payload)
+    const request = editId
+      ? api.put(`/albuns/${editId}`, payload)
       : api.post("/albuns", payload);
 
-    requisicao.then(() => {
-      limparFormulario();
-      listar();
-    });
+    request
+      .then(() => {
+        limparFormulario();
+        carregarDados();
+      })
+      .catch(err => setErro(getErrorMessage(err)));
   }
 
-  function excluir(id) {
-    api.delete(`/albuns/${id}`).then(listar);
+  function iniciarEdicao(a) {
+    setEditId(a.idAlbum);
+    setTitulo(a.titulo);
+    setAnoLancamento(String(a.anoLancamento));
+    setGenero(a.genero);
+    setIdArtista(String(a.artista?.idArtista || ""));
+    setErro("");
   }
 
-  function editar(album) {
-    setIdEdicao(album.idAlbum);
-    setTitulo(album.titulo || "");
-    setAnoLancamento(album.anoLancamento ?? "");
-    setGenero(album.genero || "");
-    setArtistaId(album.artista?.idArtista ?? "");
-  }
-
-  function limparFormulario() {
-    setTitulo("");
-    setAnoLancamento("");
-    setGenero("");
-    setArtistaId("");
-    setIdEdicao(null);
+  function excluir(idAlbum) {
+    api.delete(`/albuns/${idAlbum}`)
+      .then(carregarDados)
+      .catch(err => setErro(getErrorMessage(err)));
   }
 
   return (
     <div>
-      <h1>Álbuns</h1>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">💿 Álbuns</h1>
+          <p className="page-subtitle">
+            Discografia cadastrada por artista, ano de lançamento e gênero musical
+          </p>
+        </div>
+      </div>
 
-      <input
-        placeholder="Título do álbum"
-        value={titulo}
-        onChange={e => setTitulo(e.target.value)}
-      />
+      {erro && (
+        <div className="alert-banner alert-error">
+          <span>{erro}</span>
+          <button className="btn btn-sm btn-secondary" onClick={() => setErro("")}>✕</button>
+        </div>
+      )}
 
-      <input
-        placeholder="Ano de lançamento"
-        value={anoLancamento}
-        onChange={e => setAnoLancamento(e.target.value)}
-      />
+      <div className="panel-card">
+        <div className="panel-title">
+          <span>{editId ? `Editar Álbum #${editId}` : "Cadastrar Novo Álbum"}</span>
+          {editId && (
+            <button type="button" className="btn btn-sm btn-secondary" onClick={limparFormulario}>
+              Cancelar edição
+            </button>
+          )}
+        </div>
+        <form className="form-row" onSubmit={salvar}>
+          <input
+            className="input"
+            placeholder="Título do álbum"
+            value={titulo}
+            onChange={e => setTitulo(e.target.value)}
+          />
+          <input
+            className="input"
+            style={{ maxWidth: 180 }}
+            placeholder="Ano (ex: 2024)"
+            type="number"
+            min="1900"
+            max="2100"
+            value={anoLancamento}
+            onChange={e => setAnoLancamento(e.target.value)}
+          />
+          <input
+            className="input"
+            style={{ maxWidth: 200 }}
+            placeholder="Gênero (Rock, Pop, MPB...)"
+            value={genero}
+            onChange={e => setGenero(e.target.value)}
+          />
+          <select
+            className="select"
+            value={idArtista}
+            onChange={e => setIdArtista(e.target.value)}
+          >
+            <option value="">Selecione o artista...</option>
+            {artistas.map(ar => (
+              <option key={ar.idArtista} value={ar.idArtista}>
+                {ar.nome}
+              </option>
+            ))}
+          </select>
+          <button type="submit" className="btn btn-primary">
+            {editId ? "Atualizar" : "+ Salvar Álbum"}
+          </button>
+        </form>
+      </div>
 
-      <input
-        placeholder="Gênero"
-        value={genero}
-        onChange={e => setGenero(e.target.value)}
-      />
-
-      <input
-        placeholder="ID do artista"
-        value={artistaId}
-        onChange={e => setArtistaId(e.target.value)}
-      />
-
-      <button onClick={salvar}>{idEdicao ? "Atualizar" : "Salvar"}</button>
-      {idEdicao && <button onClick={limparFormulario}>Cancelar</button>}
-
-      <table border="1" width="100%" style={{ marginTop: 20 }}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Título</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {albuns.map(a => (
-            <tr key={a.idAlbum}>
-              <td>{a.idAlbum}</td>
-              <td>{a.titulo}</td>
-              <td>
-                <button onClick={() => editar(a)}>Editar</button>
-                <button onClick={() => excluir(a.idAlbum)}>Excluir</button>
-              </td>
+      <div className="table-wrapper">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th style={{ width: 70 }}>ID</th>
+              <th>Álbum</th>
+              <th>Artista</th>
+              <th>Ano</th>
+              <th>Gênero</th>
+              <th style={{ width: 170 }}>Ações</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {albuns.map(a => (
+              <tr key={a.idAlbum}>
+                <td>#{a.idAlbum}</td>
+                <td>
+                  <div className="entity-cell">
+                    <div className="avatar-circle">💿</div>
+                    <span className="entity-primary">{a.titulo}</span>
+                  </div>
+                </td>
+                <td>{a.artista?.nome || "—"}</td>
+                <td>{a.anoLancamento}</td>
+                <td>
+                  <span className="badge badge-accent">{a.genero}</span>
+                </td>
+                <td>
+                  <div className="action-group">
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-secondary"
+                      onClick={() => iniciarEdicao(a)}
+                    >
+                      Editar
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-danger"
+                      onClick={() => excluir(a.idAlbum)}
+                    >
+                      Excluir
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

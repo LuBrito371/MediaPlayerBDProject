@@ -1,55 +1,34 @@
 package com.playlist.music.entities;
 
-import jakarta.persistence.*;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "historico_reproducao")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class HistoricoReproducao {
 
     @EmbeddedId
     private HistoricoReproducaoId id;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @MapsId("idUsuario")
-    @JoinColumn(name = "id_usuario")
+    @JoinColumn(name = "id_usuario", nullable = false)
     private Usuario usuario;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @MapsId("idMusica")
-    @JoinColumn(name = "id_musica")
+    @JoinColumn(name = "id_musica", nullable = false)
     private Musica musica;
-
-    public HistoricoReproducao() {}
-
-	public HistoricoReproducao(HistoricoReproducaoId id, Usuario usuario, Musica musica) {
-		this.id = id;
-		this.usuario = usuario;
-		this.musica = musica;
-	}
-
-	public HistoricoReproducaoId getId() {
-		return id;
-	}
-
-	public void setId(HistoricoReproducaoId id) {
-		this.id = id;
-	}
-
-	public Usuario getUsuario() {
-		return usuario;
-	}
-
-	public void setUsuario(Usuario usuario) {
-		this.usuario = usuario;
-	}
-
-	public Musica getMusica() {
-		return musica;
-	}
-
-	public void setMusica(Musica musica) {
-		this.musica = musica;
-	}
-
-    
 }

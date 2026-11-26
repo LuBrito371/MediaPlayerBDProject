@@ -35,7 +35,7 @@ CREATE TABLE ALBUM (
     ano_lancamento INTEGER NOT NULL,
     genero VARCHAR(50) NOT NULL,
     id_artista INTEGER NOT NULL,
-    FOREIGN KEY (id_artista) REFERENCES ARTISTA(id_artista)
+    FOREIGN KEY (id_artista) REFERENCES ARTISTA(id_artista) ON DELETE CASCADE
 );
 
 CREATE TABLE MUSICA (
@@ -44,7 +44,7 @@ CREATE TABLE MUSICA (
     duracao INTEGER NOT NULL,
     url_musica VARCHAR(255) NOT NULL,
     id_album INTEGER NOT NULL,
-    FOREIGN KEY (id_album) REFERENCES ALBUM(id_album)
+    FOREIGN KEY (id_album) REFERENCES ALBUM(id_album) ON DELETE CASCADE
 );
 
 CREATE TABLE USUARIO (
@@ -59,25 +59,25 @@ CREATE TABLE PLAYLIST (
     nome_playlist VARCHAR(100) NOT NULL,
     data_criacao DATE DEFAULT CURRENT_DATE,
     id_usuario INTEGER NOT NULL,
-    FOREIGN KEY (id_usuario) REFERENCES USUARIO(id_usuario)
+    FOREIGN KEY (id_usuario) REFERENCES USUARIO(id_usuario) ON DELETE CASCADE
 );
 
 CREATE TABLE PLAYLIST_MUSICA (
-    id_playlist SERIAL NOT NULL,
+    id_playlist INTEGER NOT NULL,
     id_musica INTEGER NOT NULL,
     data_adicao DATE NOT NULL,
     PRIMARY KEY (id_playlist, id_musica),
-    FOREIGN KEY (id_playlist) REFERENCES PLAYLIST(id_playlist),
-    FOREIGN KEY (id_musica) REFERENCES MUSICA(id_musica)
+    FOREIGN KEY (id_playlist) REFERENCES PLAYLIST(id_playlist) ON DELETE CASCADE,
+    FOREIGN KEY (id_musica) REFERENCES MUSICA(id_musica) ON DELETE CASCADE
 );
 
 CREATE TABLE HISTORICO_REPRODUCAO (
-    id_usuario SERIAL NOT NULL,
+    id_usuario INTEGER NOT NULL,
     id_musica INTEGER NOT NULL,
     data_hora_reproducao TIMESTAMP NOT NULL,
     PRIMARY KEY (id_usuario, id_musica, data_hora_reproducao),
-    FOREIGN KEY (id_usuario) REFERENCES USUARIO(id_usuario),
-    FOREIGN KEY (id_musica) REFERENCES MUSICA(id_musica)
+    FOREIGN KEY (id_usuario) REFERENCES USUARIO(id_usuario) ON DELETE CASCADE,
+    FOREIGN KEY (id_musica) REFERENCES MUSICA(id_musica) ON DELETE CASCADE
 );
 
 -- ====================================
@@ -290,30 +290,60 @@ AFTER UPDATE ON USUARIO
 FOR EACH ROW
 EXECUTE FUNCTION fn_auditoria_usuario_update();
 
+CREATE INDEX idx_auditoria_usuario_id ON AUDITORIA_USUARIO(id_usuario);
 
 -- ====================================
--- TRIGGER: Impedir exclusão de artista com músicas cadastradas
--- Regra: artista só pode ser removido se não houver músicas relacionadas
+-- VIEWS DE RELATÓRIO (JOIN + GROUP BY + AGREGAÇÕES)
 -- ====================================
 
-CREATE OR REPLACE FUNCTION fn_bloquear_exclusao_artista_com_musicas()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF EXISTS (
-        SELECT 1
-        FROM ALBUM al
-        JOIN MUSICA m ON m.id_album = al.id_album
-        WHERE al.id_artista = OLD.id_artista
-    ) THEN
-        RAISE EXCEPTION 'Não é permitido excluir o artista %: existem músicas vinculadas a ele.', OLD.nome;
-    END IF;
+CREATE OR REPLACE VIEW v_relatorio_execucao_usuario_dia AS
+SELECT
+    u.id_usuario,
+    u.nome AS usuario,
+    DATE(h.data_hora_reproducao) AS dia,
+    COUNT(*) AS total_reproducoes,
+    COUNT(DISTINCT h.id_musica) AS musicas_distintas,
+    SUM(m.duracao) AS total_segundos,
+    ROUND(SUM(m.duracao) / 60.0, 2) AS total_minutos,
+    COUNT(DISTINCT ar.id_artista) AS artistas_distintos
+FROM HISTORICO_REPRODUCAO h
+JOIN USUARIO u ON u.id_usuario = h.id_usuario
+JOIN MUSICA m ON m.id_musica = h.id_musica
+JOIN ALBUM al ON al.id_album = m.id_album
+JOIN ARTISTA ar ON ar.id_artista = al.id_artista
+GROUP BY u.id_usuario, u.nome, DATE(h.data_hora_reproducao);
 
-    RETURN OLD;
-END;
-$$ LANGUAGE plpgsql;
+CREATE OR REPLACE VIEW v_desempenho_playlists AS
+SELECT
+    p.id_playlist,
+    p.nome_playlist,
+    u.nome AS dono_playlist,
+    COUNT(pm.id_musica) AS total_musicas,
+    COUNT(DISTINCT ar.id_artista) AS artistas_distintos,
+    COALESCE(SUM(m.duracao), 0) AS duracao_total_segundos,
+    ROUND(COALESCE(SUM(m.duracao), 0) / 60.0, 2) AS duracao_total_minutos,
+    MIN(pm.data_adicao) AS primeira_adicao,
+    MAX(pm.data_adicao) AS ultima_adicao
+FROM PLAYLIST p
+JOIN USUARIO u ON u.id_usuario = p.id_usuario
+LEFT JOIN PLAYLIST_MUSICA pm ON pm.id_playlist = p.id_playlist
+LEFT JOIN MUSICA m ON m.id_musica = pm.id_musica
+LEFT JOIN ALBUM al ON al.id_album = m.id_album
+LEFT JOIN ARTISTA ar ON ar.id_artista = al.id_artista
+GROUP BY p.id_playlist, p.nome_playlist, u.nome;
 
-DROP TRIGGER IF EXISTS trg_bloquear_exclusao_artista ON ARTISTA;
-CREATE TRIGGER trg_bloquear_exclusao_artista
-BEFORE DELETE ON ARTISTA
-FOR EACH ROW
-EXECUTE FUNCTION fn_bloquear_exclusao_artista_com_musicas();
+CREATE OR REPLACE VIEW v_ranking_artistas_global AS
+SELECT
+    ar.id_artista,
+    ar.nome AS artista,
+    COUNT(h.data_hora_reproducao) AS total_reproducoes,
+    COUNT(DISTINCT h.id_usuario) AS usuarios_unicos,
+    COUNT(DISTINCT m.id_musica) AS musicas_catalogo,
+    COALESCE(SUM(m.duracao), 0) AS soma_duracao_reproduzida_segundos,
+    ROUND(COALESCE(SUM(m.duracao), 0) / 60.0, 2) AS soma_duracao_reproduzida_minutos,
+    ROUND(COUNT(h.data_hora_reproducao)::numeric / NULLIF(COUNT(DISTINCT h.id_usuario), 0), 2) AS media_reproducoes_por_usuario
+FROM ARTISTA ar
+LEFT JOIN ALBUM al ON al.id_artista = ar.id_artista
+LEFT JOIN MUSICA m ON m.id_album = al.id_album
+LEFT JOIN HISTORICO_REPRODUCAO h ON h.id_musica = m.id_musica
+GROUP BY ar.id_artista, ar.nome;

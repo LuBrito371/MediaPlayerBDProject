@@ -1,6 +1,13 @@
 package com.playlist.music.entities;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,71 +17,25 @@ import lombok.Setter;
 @Table(name = "album")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Album {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_album")
     private Integer idAlbum;
 
+    @Column(nullable = false, length = 100)
     private String titulo;
+
+    @Column(name = "ano_lancamento", nullable = false)
     private Integer anoLancamento;
+
+    @Column(nullable = false, length = 50)
     private String genero;
 
-    @ManyToOne
-    @JoinColumn(name = "id_artista")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "id_artista", nullable = false)
     private Artista artista;
-    
-    public Album () {}
-
-	public Album(Integer idAlbum, String titulo, Integer anoLancamento, String genero, Artista artista) {
-		this.idAlbum = idAlbum;
-		this.titulo = titulo;
-		this.anoLancamento = anoLancamento;
-		this.genero = genero;
-		this.artista = artista;
-	}
-
-	public Integer getIdAlbum() {
-		return idAlbum;
-	}
-
-	public void setIdAlbum(Integer idAlbum) {
-		this.idAlbum = idAlbum;
-	}
-
-	public String getTitulo() {
-		return titulo;
-	}
-
-	public void setTitulo(String titulo) {
-		this.titulo = titulo;
-	}
-
-	public Integer getAnoLancamento() {
-		return anoLancamento;
-	}
-
-	public void setAnoLancamento(Integer anoLancamento) {
-		this.anoLancamento = anoLancamento;
-	}
-
-	public String getGenero() {
-		return genero;
-	}
-
-	public void setGenero(String genero) {
-		this.genero = genero;
-	}
-
-	public Artista getArtista() {
-		return artista;
-	}
-
-	public void setArtista(Artista artista) {
-		this.artista = artista;
-	}
-	
-	
-    
-    
 }
